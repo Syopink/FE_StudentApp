@@ -1,0 +1,16 @@
+.nav-link:hover {
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+  }
+  .card .card-body {
+	min-height: 100px;
+  }
+  .card {
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav-link.active {
+	background-color: rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+  }
+  

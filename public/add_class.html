@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thêm lớp học - Đại học</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/datepicker3.css" rel="stylesheet">
+<link href="css/bootstrap-table.css" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!--Icons-->
+<script src="js/lumino.glyphs.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/html5shiv.js"></script>
+<script src="js/respond.min.js"></script>
+<![endif]-->
+
+</head>
+
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#sidebar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><span>Edu</span>Admin</a>
+				<ul class="user-menu">
+					<li class="dropdown pull-right">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Admin <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li><a href="/public/profile.html"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Hồ sơ</a></li>
+							<li><a href="#"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> Đăng xuất</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div>				
+		</div><!-- /.container-fluid -->
+	</nav>
+
+	<div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+		<form role="search">
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="Tìm kiếm">
+			</div>
+		</form>
+		<ul class="nav menu">
+			<li><a href="index.html"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg> Dashboard</a></li>
+			<li><a href="student.html"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Quản lý sinh viên</a></li>
+			<li class="active"><a href="class.html"><svg class="glyph stroked open-folder"><use xlink:href="#stroked-open-folder"></use></svg> Quản lý lớp học</a></li>
+			<li><a href="teacher.html"><svg class="glyph stroked bag"><use xlink:href="#stroked-bag"></use></svg> Quản lý giáo viên</a></li>
+			<li><a href="subject.html"><svg class="glyph stroked notebook"><use xlink:href="#stroked-table"></use></svg> Quản lý môn học</a></li>
+			<li><a href="grades.html"><svg class="glyph stroked clipboard-with-paper"><use xlink:href="#stroked-clipboard-with-paper"></use></svg> Quản lý điểm</a></li>
+			<li><a href="schedule.html"><svg class="glyph stroked calendar-blank"><use xlink:href="#stroked-calendar-blank"></use></svg> Lịch học</a></li>
+			<li><a href="registration.html"><svg class="glyph stroked notepad"><use xlink:href="#stroked-notepad"></use></svg> Đăng ký học phần</a></li>
+			<li><a href="settings.html"><svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> Cấu hình</a></li>
+		</ul>
+	</div><!--/.sidebar-->
+
+	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+		<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li><a href="class.html">Quản lý lớp học</a></li>
+				<li class="active">Thêm lớp học</li>
+			</ol>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<h1 class="page-header">Thêm lớp học</h1>
+			</div>
+		</div><!--/.row-->
+		
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="col-md-8">
+							<form role="form" method="post">
+								<div class="form-group">
+									<label>Tên lớp</label>
+									<input name="class_name" required class="form-control" placeholder="Nhập tên lớp">
+								</div>
+								<div class="form-group">
+									<label>Giáo viên chủ nhiệm</label>
+									<input name="class_teacher" required class="form-control" placeholder="Nhập tên giáo viên">
+								</div>
+								<div class="form-group">
+									<label>Sĩ số</label>
+									<input name="class_size" required type="number" min="1" class="form-control" placeholder="Nhập sĩ số">
+								</div>
+								<div class="form-group">
+									<label>Chuyên ngành</label>
+									<select name="class_major" class="form-control">
+										<option value="Computer Science">Khoa học máy tính</option>
+										<option value="Software Engineering">Kỹ thuật phần mềm</option>
+										<option value="Business Administration">Quản trị kinh doanh</option>
+										<option value="Electrical Engineering">Kỹ thuật điện</option>
+									</select>
+								</div>
+								<button type="submit" class="btn btn-success"><i class="fa fa-save"></i> Lưu</button>
+								<button type="reset" class="btn btn-default">Làm mới</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div><!-- /.col-->
+		</div><!-- /.row -->
+	</div><!--/.main-->
+	
+	<script src="js/jquery-1.11.1.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>	
+</body>
+</html>

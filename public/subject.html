@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hệ thống quản trị - Quản lý môn học</title>
+
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<link href="css/datepicker3.css" rel="stylesheet">
+<link href="css/bootstrap-table.css" rel="stylesheet">
+<link href="css/styles.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!--Icons-->
+<script src="js/lumino.glyphs.js"></script>
+
+<!--[if lt IE 9]>
+<script src="js/html5shiv.js"></script>
+<script src="js/respond.min.js"></script>
+<![endif]-->
+</head>
+
+<body>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#sidebar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><span>Edu</span>Admin</a>
+            <ul class="user-menu">
+                <li class="dropdown pull-right">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        <svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Admin <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a href="/public/profile.html"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Hồ sơ</a></li>
+                        <li><a href="#"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> Đăng xuất</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+    <form role="search">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Tìm kiếm">
+        </div>
+    </form>
+    <ul class="nav menu">
+        <li><a href="admin.html">
+            <svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-home"></use></svg> Dashboard</a>
+        </li>
+        <li><a href="student.html">
+            <svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Quản lý sinh viên</a>
+        </li>
+        <li><a href="class.html">
+            <svg class="glyph stroked open-folder"><use xlink:href="#stroked-open-folder"></use></svg> Quản lý lớp học</a>
+        </li>
+        <li><a href="teacher.html">
+            <svg class="glyph stroked bag"><use xlink:href="#stroked-bag"></use></svg> Quản lý giáo viên</a>
+        </li>
+        <li  class="active"><a href="subject.html">
+            <svg class="glyph stroked notebook"><use xlink:href="#stroked-table"></use></svg> Quản lý môn học</a>
+        </li>
+        <li><a href="grades.html">
+            <svg class="glyph stroked clipboard-with-paper"><use xlink:href="#stroked-clipboard-with-paper"></use></svg> Quản lý điểm</a>
+        </li>
+        <li><a href="schedule.html">
+            <svg class="glyph stroked calendar-blank"><use xlink:href="#stroked-calendar-blank"></use></svg> Lịch học</a>
+        </li>
+        <li><a href="registration.html">
+            <svg class="glyph stroked notepad"><use xlink:href="#stroked-notepad"></use></svg> Đăng ký học phần</a>
+        </li>
+        <li><a href="settings.html">
+            <svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> Cấu hình</a>
+        </li>
+    </ul>
+</div>
+
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
+    <div class="row">
+        <ol class="breadcrumb">
+            <li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+            <li class="active">Quản lý môn học</li>
+        </ol>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Danh sách môn học</h1>
+        </div>
+    </div>
+    
+    <div id="toolbar" class="btn-group">
+        <a href="add_subject.html" class="btn btn-success">
+            <i class="glyphicon glyphicon-plus"></i> Thêm môn học
+        </a>
+    </div>
+    <div style="border: 1px solid #ccc; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <!-- Bộ lọc tìm kiếm -->
+        <div class="row" style="margin-bottom: 20px;">
+            <div class="col-md-3">
+                <input type="text" id="searchName" class="form-control" placeholder="Tìm theo tên">
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="searchIdSubject" class="form-control" placeholder="Tìm theo mã môn học">
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-primary" onclick="filterTable()">Tìm kiếm</button>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <table data-toolbar="#toolbar" data-toggle="table">
+                        <thead>
+                            <tr>
+                                <th data-field="id" data-sortable="true">ID</th>
+                                <th data-field="name" data-sortable="true">Tên môn học</th>
+                                <th data-field="code" data-sortable="true">Mã môn học</th>
+                                <th>Số tín chỉ</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Toán cao cấp</td>
+                                <td>TC001</td>
+                                <td>3</td>
+                                <td class="form-group">
+                                    <a href="edit_subject.html" class="btn btn-primary"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <a href="/" class="btn btn-danger">X</i></a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Vật lý đại cương</td>
+                                <td>VL002</td>
+                                <td>4</td>
+                                <td class="form-group">
+                                    <a href="edit_subject.html" class="btn btn-primary"><i class="glyphicon glyphicon-pencil"></i></a>
+                                    <a href="/" class="btn btn-danger">X</i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table> <div style="display: flex; justify-content: end; margin-top: 10px;">
+                        <a onclick="clickDeleteChecked()" class="btn btn-danger" style="margin-right: 10px;">
+                            <i class="fa fa-trash"></i> Xóa các ô đã chọn
+                        </a>
+                        <a onclick="selectAllCheckbox()" class="btn btn-warning">
+                            <i class="fa fa-check"></i> Chọn tất cả
+                        </a>
+                    </div>                                      
+                </div>
+                <div class="panel-footer">
+                    <div id="toolbar" class="btn-group">
+                        <a href="/admin/category/trash" class="btn btn-info">
+                            <i class="fa fa-trash"></i> Môn học đã xóa
+                        </a>
+                      </div>
+                    <nav>
+                        <ul class="pagination">
+                            <li><a href="#">&laquo;</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">&raquo;</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>	
+</div>
+
+<script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-table.js"></script>	
+</body>
+</html>
