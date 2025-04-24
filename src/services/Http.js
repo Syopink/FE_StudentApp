@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { BASE_URL } from '../shared/constants/app';
+import { refreshToken as REFRESH_TOKEN_URL } from './Api';
 
 const Http = axios.create({
   baseURL: BASE_URL,
@@ -9,35 +10,47 @@ const Http = axios.create({
   },
 });
 
+const handleRefreshToken = async () => {
+  const refresh_token = localStorage.getItem('refreshToken');
+  if (!refresh_token) throw new Error('No refresh token found');
+
+  try {
+    const response = await axios.post(REFRESH_TOKEN_URL, { refreshToken: refresh_token });
+    const { accessToken, refreshToken } = response.data;
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+    return accessToken;
+  } catch (error) {
+    console.error('Refresh token failed:', error);
+    throw error;
+  }
+};
+
 Http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
-    console.log('Token in interceptor:', token); // Kiểm tra token
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      console.log('Authorization header set:', config.headers.Authorization); // Kiểm tra header
-      console.log("config", config.headers.Authorization);
-    } else {
-      console.log('No token found in localStorage');
-    }
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => {
-    console.error('Interceptor error:', error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-
 Http.interceptors.response.use(
-  (response) => {
-    console.log("response.data", response.data);
-    return response;
-  },
-  (error) => {
-    console.error('API Error:', error);
-    if (error.response && error.response.status === 401) {
-      console.log('Unauthorized request');
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const newAccessToken = await handleRefreshToken();
+        originalRequest.headers = originalRequest.headers || {};
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return Http(originalRequest);
+      } catch (refreshError) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

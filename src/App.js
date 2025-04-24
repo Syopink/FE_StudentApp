@@ -7,8 +7,10 @@ import AdminLayout from './layouts/AdminLayout';
 import HeaderAdmin from './shared/components/Layout/adminLayout/Header';
 import FooterAdmin from './shared/components/Layout/adminLayout/Footer';
 import Sidebar from './shared/components/Layout/adminLayout/Sidebar';
+import { AuthProvider } from './ultis/AuthContext';
 const App = () => {
   return (
+    <AuthProvider>
     <BrowserRouter>
       <Routes>
         {publicRoutes.map((route, index) => {
@@ -49,6 +51,7 @@ const App = () => {
         })}
       </Routes>
     </BrowserRouter>
+    </AuthProvider>
   );
 };
 

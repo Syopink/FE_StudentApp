@@ -1,52 +1,109 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getDepartment, updateDepartment } from '../../services/Api'; // Đảm bảo bạn có updateDepartment trong API
 
-const ClassEdit = () => {
-  const { id } = useParams();
-  const [name, setName] = useState('');
-  const [teacher, setTeacher] = useState('');
-  const [students, setStudents] = useState('');
+const DepartmentEdit = () => {
+  const { id } = useParams();  
+  console.log(id)
+  const navigate = useNavigate();
 
+  const [dept, setDept] = useState(null);
+
+  // Lấy dữ liệu khoa khi component được tải
   useEffect(() => {
-    // Giả lập dữ liệu từ API dựa theo ID
-    const fakeClass = {
-      id,
-      name: 'Công nghệ phần mềm 1',
-      teacher: 'Nguyễn Văn A',
-      students: 40,
-    };
+    const fetchData = async () => {
+      try {
+        const res = await getDepartment(id);
+        console.log(res); // Xem cấu trúc dữ liệu trả về từ API
 
-    setName(fakeClass.name);
-    setTeacher(fakeClass.teacher);
-    setStudents(fakeClass.students);
+        setDept(res.data);
+        console.log(dept.deptName)
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu khoa:', error);
+      }
+    };
+    fetchData();
   }, [id]);
 
-  const handleSubmit = (e) => {
+  // Nếu dữ liệu chưa tải xong
+  if (!dept) return <p>Đang tải dữ liệu...</p>;
+
+  // Xử lý thay đổi giá trị các trường
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+    setDept(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  // Xử lý khi submit form
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Đã cập nhật lớp: ${name} - Giáo viên: ${teacher} - Sĩ số: ${students}`);
-    // Gọi API cập nhật lớp học tại đây nếu cần
+    try {
+      // Gọi API cập nhật khoa      
+      await updateDepartment(id, dept);
+      console.log((await updateDepartment(id, dept)).data);
+      alert(`✅ Đã cập nhật khoa ${dept.deptName}`);
+      navigate('/admin/class'); // Chuyển hướng đến danh sách khoa
+    } catch (err) {
+      console.error("❌ Lỗi cập nhật:", err);
+      alert("Cập nhật thất bại!");
+    }
   };
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Chỉnh sửa lớp học</h2>
+      <h2 className="mb-4">Chỉnh sửa khoa</h2>
       <form onSubmit={handleSubmit}>
+        {/* Tên khoa */}
         <div className="mb-3">
-          <label htmlFor="name" className="form-label">Tên lớp</label>
-          <input type="text" className="form-control" id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+          <label htmlFor="deptName" className="form-label">Tên Khoa</label>
+          <input
+            type="text"
+            className="form-control"
+            id="deptName"
+            name="deptName"
+            value={dept.deptName}
+            onChange={handleChange}
+            required
+          />
         </div>
+        
+        {/* Mã khoa */}
         <div className="mb-3">
-          <label htmlFor="teacher" className="form-label">Giáo viên chủ nhiệm</label>
-          <input type="text" className="form-control" id="teacher" value={teacher} onChange={(e) => setTeacher(e.target.value)} required />
+          <label htmlFor="deptCode" className="form-label">Mã Khoa</label>
+          <input
+            type="text"
+            className="form-control"
+            id="deptCode"
+            name="deptCode"
+            value={dept.deptCode}
+            onChange={handleChange}
+            required
+          />
         </div>
+
+        {/* Mô tả khoa */}
         <div className="mb-3">
-          <label htmlFor="students" className="form-label">Sĩ số</label>
-          <input type="number" className="form-control" id="students" value={students} onChange={(e) => setStudents(e.target.value)} required />
+          <label htmlFor="description" className="form-label">Mô tả</label>
+          <input
+            type="text"
+            className="form-control"
+            id="description"
+            name="description"
+            value={dept.description}
+            onChange={handleChange}
+            required
+          />
         </div>
+
+        {/* Nút Cập nhật */}
         <button type="submit" className="btn btn-primary">Cập nhật</button>
       </form>
     </div>
   );
 };
 
-export default ClassEdit;
+export default DepartmentEdit;

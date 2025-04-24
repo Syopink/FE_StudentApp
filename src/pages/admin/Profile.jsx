@@ -1,14 +1,28 @@
-// src/pages/admin/Profile.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../ultis/AuthContext"; // Đảm bảo đường dẫn chính xác
 
 const Profile = () => {
+  const { user } = useContext(AuthContext); // Lấy dữ liệu người dùng từ context
   const [formData, setFormData] = useState({
-    fullName: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-    phone: "0123456789",
+    username: "",
+    email: "",
+    phone: "",
     password: "",
     confirmPassword: ""
   });
+
+  useEffect(() => {
+    if (user) {
+      // Cập nhật giá trị formData với thông tin người dùng từ context
+      setFormData({
+        username: user.username || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        password: "",
+        confirmPassword: ""
+      });
+    }
+  }, [user]); // Chạy lại khi user thay đổi
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -37,9 +51,9 @@ const Profile = () => {
               <input
                 type="text"
                 className="form-control"
-                id="fullName"
-                name="fullName"
-                value={formData.fullName}
+                id="username"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
               />
             </div>
@@ -68,31 +82,6 @@ const Profile = () => {
               />
             </div>
 
-            <div className="form-group mb-3">
-              <label htmlFor="password">Mật khẩu mới</label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                name="password"
-                placeholder="Nhập mật khẩu mới"
-                value={formData.password}
-                onChange={handleChange}
-              />
-            </div>
-
-            <div className="form-group mb-4">
-              <label htmlFor="confirmPassword">Xác nhận mật khẩu mới</label>
-              <input
-                type="password"
-                className="form-control"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="Nhập lại mật khẩu mới"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-            </div>
 
             <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
           </form>

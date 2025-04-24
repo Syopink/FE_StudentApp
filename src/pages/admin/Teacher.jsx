@@ -1,129 +1,174 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getTeachers } from '../../services/Api'; // Giả sử có API getTeachers
 
 const Teacher = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3;
+  const [teachers, setTeachers] = useState([]);
+  const [filteredTeachers, setFilteredTeachers] = useState([]);
   const [selectedTeachers, setSelectedTeachers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchName, setSearchName] = useState('');
+  const [searchEmail, setSearchEmail] = useState('');
 
-  const teachers = [
-    { id: 1, name: 'Nguyễn Thị C', email: 'c@gmail.com', department: 'Công nghệ thông tin' },
-    { id: 2, name: 'Trần Văn D', email: 'd@gmail.com', department: 'Chính trị' },
-    { id: 3, name: 'Lê Văn E', email: 'e@gmail.com', department: 'Toán học' },
-    { id: 4, name: 'Hoàng Thị F', email: 'f@gmail.com', department: 'Kỹ thuật' },
-    { id: 5, name: 'Phạm Văn G', email: 'g@gmail.com', department: 'Vật lý' },
-  ];
+  const itemsPerPage = 2;
 
-  const totalPages = Math.ceil(teachers.length / itemsPerPage);
-  const currentItems = teachers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await getTeachers();
+        setTeachers(response.data);
+        setFilteredTeachers(response.data);
+      } catch (error) {
+        console.error('Lỗi lấy danh sách giảng viên:', error);
+      }
+    };
+    fetchTeachers();
+  }, []);
 
-  const handleSelectTeacher = (id) => {
-    setSelectedTeachers(prev =>
-      prev.includes(id) ? prev.filter(tid => tid !== id) : [...prev, id]
+  useEffect(() => {
+    const filtered = teachers.filter((t) =>
+      (t.teacherName || '').toLowerCase().includes(searchName.toLowerCase()) &&
+      (t.teacherEmail || '').toLowerCase().includes(searchEmail.toLowerCase())
+    );
+    setFilteredTeachers(filtered);
+    setCurrentPage(1); 
+  }, [searchName, searchEmail, teachers]);
+
+  const handleCheckboxChange = (teacherId) => {
+    setSelectedTeachers((prev) =>
+      prev.includes(teacherId)
+        ? prev.filter((id) => id !== teacherId)
+        : [...prev, teacherId]
     );
   };
 
-  const handleSelectAll = (e) => {
-    const pageIds = currentItems.map(t => t.id);
-    if (e.target.checked) {
-      setSelectedTeachers(prev => [...new Set([...prev, ...pageIds])]);
+  const handleSelectAllChange = () => {
+    if (selectedTeachers.length === currentTeachers.length) {
+      setSelectedTeachers([]);
     } else {
-      setSelectedTeachers(prev => prev.filter(id => !pageIds.includes(id)));
+      setSelectedTeachers(currentTeachers.map((t) => t.id));
     }
   };
 
-  const renderPagination = () => (
-    <ul className="pagination">
-      {[...Array(totalPages)].map((_, i) => (
-        <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-          <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
-            {i + 1}
-          </button>
-        </li>
-      ))}
-    </ul>
-  );
+  const indexOfLast = currentPage * itemsPerPage;
+  const indexOfFirst = indexOfLast - itemsPerPage;
+  const currentTeachers = filteredTeachers.slice(indexOfFirst, indexOfLast);
+  const totalPages = Math.ceil(filteredTeachers.length / itemsPerPage);
+
+  const isTeachersEmpty = filteredTeachers.length === 0;
 
   return (
     <div className="container mt-4">
       <h2 className="mb-4">Quản lý giảng viên</h2>
 
+      {/* Tìm kiếm */}
       <div className="row mb-3">
-        <div className="col-md-3">
-          <input className="form-control" placeholder="Tìm theo tên" />
+        <div className="col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Tìm theo tên"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-md-3">
-          <input className="form-control" placeholder="Tìm theo email" />
+        <div className="col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Tìm theo email"
+            value={searchEmail}
+            onChange={(e) => setSearchEmail(e.target.value)}
+          />
         </div>
-        <div className="col-md-3">
-          <input className="form-control" placeholder="Tìm theo khoa" />
-        </div>
-        <div className="col-md-3 text-end">
-          <a href="/admin/teacher/add" className="btn btn-success">
+        <div className="col-md-4 text-end">
+          <a href="/admin/teachers/add" className="btn btn-success">
             <i className="fas fa-plus"></i> Thêm giảng viên
           </a>
         </div>
       </div>
 
+      {/* Nút hành động */}
       <div className="d-flex justify-content-between mb-2">
         <div>
           <button className="btn btn-danger me-2">
             <i className="fa fa-trash"></i> Xóa các ô đã chọn
           </button>
-          <button className="btn btn-warning">
-            <i className="fa fa-check"></i>{' '}
-            {selectedTeachers.length === currentItems.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-          </button>
+          {/* Chỉ hiển thị "Bỏ chọn tất cả" nếu có giảng viên để chọn */}
+          {!isTeachersEmpty && (
+            <button className="btn btn-warning" onClick={handleSelectAllChange}>
+              <i className="fa fa-check"></i>{' '}
+              {selectedTeachers.length === currentTeachers.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+            </button>
+          )}
         </div>
         <a className="btn btn-info" href="/admin/teachers/trash">
-          <i className="fa fa-trash"></i> Giáo viên đã xóa
+          <i className="fa fa-trash"></i> Giảng viên đã xóa
         </a>
       </div>
 
-      <table className="table table-bordered text-center">
-        <thead>
-          <tr>
-            <th>
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                checked={currentItems.every(t => selectedTeachers.includes(t.id))}
-              />
-            </th>
-            <th>ID</th>
-            <th>Họ & Tên</th>
-            <th>Email</th>
-            <th>Khoa</th>
-            <th>Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map(t => (
-            <tr key={t.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedTeachers.includes(t.id)}
-                  onChange={() => handleSelectTeacher(t.id)}
-                />
-              </td>
-              <td>{t.id}</td>
-              <td>{t.name}</td>
-              <td>{t.email}</td>
-              <td>{t.department}</td>
-              <td className="d-flex justify-content-center gap-2">
-                <a href={`/admin/teacher/edit`} className="btn btn-primary">
-                  <i className="fa fa-pencil-alt"></i>
-                </a>
-                <a href={`/admin/teacher/delete/${t.id}`} className="btn btn-danger">
-                  <i className="fa fa-trash"></i>
-                </a>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* Bảng giảng viên */}
+      {isTeachersEmpty ? (
+        <div className="alert alert-info">Không tìm thấy giảng viên nào!</div>
+      ) : (
+        <>
+          <table className="table table-bordered text-center">
+            <thead>
+              <tr>
+                <th>
+                  <input
+                    type="checkbox"
+                    onChange={handleSelectAllChange}
+                    checked={currentTeachers.length > 0 && selectedTeachers.length === currentTeachers.length}
+                  />
+                </th>
+                <th>ID</th>
+                <th>Họ & Tên</th>
+                <th>Email</th>
+                <th>Địa chỉ</th>
+                <th>Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentTeachers.map((teacher) => (
+                <tr key={teacher.id}>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={selectedTeachers.includes(teacher.id)}
+                      onChange={() => handleCheckboxChange(teacher.id)}
+                    />
+                  </td>
+                  <td>{teacher.id}</td>
+                  <td>{teacher.teacherName}</td>
+                  <td>{teacher.teacherEmail}</td>
+                  <td>{teacher.teacherAddress}</td>
+                  <td className="d-flex justify-content-center gap-2">
+                    <a href={`/admin/teacher/edit/${teacher.id}`} className="btn btn-primary">
+                      <i className="fa fa-pencil-alt"></i>
+                    </a>
+                    <a href={`/admin/teachers/delete/${teacher.id}`} className="btn btn-danger">
+                      <i className="fa fa-trash"></i>
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      )}
 
-      <nav className="d-flex justify-content-end">{renderPagination()}</nav>
+      {/* Phân trang */}
+      <nav className="d-flex justify-content-end">
+        <ul className="pagination">
+          {Array.from({ length: totalPages }).map((_, i) => (
+            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+              <button className="page-link" onClick={() => setCurrentPage(i + 1)}>
+                {i + 1}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
   );
 };

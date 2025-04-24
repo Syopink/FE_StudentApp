@@ -1,6 +1,5 @@
 import Home from "../components/Home";
 import Login from "../pages/Login";
-import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/admin/Dashboard";
 import Student from "../pages/admin/Student";
 import Class from "../pages/admin/Class";
@@ -47,7 +46,7 @@ const publicRoutes = [
                 element: <StudentAdd/>
             }
             ,{
-                path: 'students/edit',
+                path: 'students/edit/:student_code',
                 element: <StudentEdit/>
             }
             ,{
@@ -59,7 +58,7 @@ const publicRoutes = [
                 element: <ClassAdd/>
             }
             ,{
-                path: 'class/edit',
+                path: 'class/edit/:id',
                 element: <ClassEdit/>
             }
             ,{
@@ -71,7 +70,7 @@ const publicRoutes = [
                 element: <TeacherAdd/>
             }
             ,{
-                path: 'teacher/edit',
+                path: 'teacher/edit/:teacherCode',
                 element: <TeacherEdit/>
             }
             ,{

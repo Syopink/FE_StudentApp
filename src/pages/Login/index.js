@@ -18,6 +18,8 @@ const Login = () => {
       console.log("Đăng nhập thành công:", response.data);      
       // Ví dụ: lưu token vào localStorage
       localStorage.setItem("token", response.data.accessToken);
+      localStorage.setItem("refreshToken", response.data.refreshToken);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       // Redirect (nếu cần)
       navigate('/admin')
@@ -51,7 +53,7 @@ const Login = () => {
             />
           </div>
           <div className="remember-container">
-            <input type="checkbox" id="remember" name="remember" style={{marginBottom: "5px"}} />
+            <input type="checkbox" id="remember" name="remember" style={{marginBottom: "0px"}} />
             <label htmlFor="remember"> Nhớ tài khoản</label>
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}

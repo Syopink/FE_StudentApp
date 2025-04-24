@@ -1,33 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { getStudent, updateStudent } from '../../services/Api';
 
 const StudentEdit = () => {
-  const { id } = useParams();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [faculty, setFaculty] = useState('');
-  const [className, setClassName] = useState('');
+  const { student_code } = useParams();
+  const navigate = useNavigate();
+  const [student, setStudent] = useState(null);
 
   useEffect(() => {
-    // Giả lập dữ liệu được fetch từ API
-    const fetchedStudent = {
-      id,
-      name: 'Nguyễn Văn A',
-      email: 'a@gmail.com',
-      faculty: 'CNTT',
-      className: 'CNPM1',
+    const fetchData = async () => {
+      const res = await getStudent(student_code);
+      setStudent(res.data);
     };
+    fetchData();
+  }, [student_code]);
 
-    setName(fetchedStudent.name);
-    setEmail(fetchedStudent.email);
-    setFaculty(fetchedStudent.faculty);
-    setClassName(fetchedStudent.className);
-  }, [id]);
+  if (!student) return <p>Đang tải dữ liệu...</p>;
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setStudent(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Đã cập nhật sinh viên ${id}: ${name}, ${email}, ${faculty}, ${className}`);
-    // TODO: Gửi dữ liệu cập nhật lên server tại đây
+    try {
+      await updateStudent(student_code, student);
+      alert(`✅ Đã cập nhật sinh viên ${student_code}`);
+      navigate('/admin/students');
+    } catch (err) {
+      console.error("❌ Lỗi cập nhật:", err);
+      alert("Cập nhật thất bại!");
+    }
   };
 
   return (
@@ -36,19 +43,36 @@ const StudentEdit = () => {
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label>Họ & Tên</label>
-          <input type="text" className="form-control" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input
+            type="text"
+            className="form-control"
+            name="student_name"
+            value={student.student_name}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Email</label>
-          <input type="email" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <label>Số điện thoại</label>
+          <input
+            type="text"
+            className="form-control"
+            name="phone_number"
+            value={student.phone_number}
+            onChange={handleChange}
+            required
+          />
         </div>
         <div className="mb-3">
-          <label>Khoa</label>
-          <input type="text" className="form-control" value={faculty} onChange={(e) => setFaculty(e.target.value)} required />
-        </div>
-        <div className="mb-3">
-          <label>Lớp</label>
-          <input type="text" className="form-control" value={className} onChange={(e) => setClassName(e.target.value)} required />
+          <label>Địa chỉ</label>
+          <input
+            type="text"
+            className="form-control"
+            name="address"
+            value={student.address}
+            onChange={handleChange}
+            required
+          />
         </div>
         <button type="submit" className="btn btn-primary">Cập nhật</button>
       </form>

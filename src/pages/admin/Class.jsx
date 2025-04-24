@@ -1,39 +1,44 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { getDepartments } from '../../services/Api'; // Import API
 
-const Class = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 3; // số lớp trên mỗi trang
-  const [selectedClasses, setSelectedClasses] = useState([]);
+const DepartmentList = () => {
+  const [departments, setDepartments] = useState([]); // Lưu danh sách khoa
+  const [selectedDept, setSelectedDept] = useState(''); // Khoa được chọn
+  const [searchName, setSearchName] = useState(''); // Tìm kiếm theo tên khoa
+  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
+  const itemsPerPage = 3; // Số khoa trên mỗi trang
 
-  const classes = [
-    { id: 1, name: 'Công nghệ phần mềm 1', teacher: 'Nguyễn Văn A', students: 40 },
-    { id: 2, name: 'Công nghệ phần mềm 2', teacher: 'Trần Thị B', students: 28 },
-    { id: 3, name: 'Kỹ thuật phần mềm', teacher: 'Lê Văn C', students: 35 },
-    { id: 4, name: 'Phân tích hệ thống', teacher: 'Ngô Thị D', students: 32 },
-    { id: 5, name: 'Kiến trúc phần mềm', teacher: 'Phạm Văn E', students: 38 },
-  ];
+  // Lấy danh sách khoa từ API
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const deptResponse = await getDepartments();
+        setDepartments(deptResponse.data);
+      } catch (error) {
+        console.error('Lỗi khi lấy danh sách khoa:', error);
+      }
+    };
 
-  const totalPages = Math.ceil(classes.length / itemsPerPage);
+    fetchDepartments();
+  }, []);
 
-  const handleCheckboxChange = (classId) => {
-    setSelectedClasses((prevSelected) =>
-      prevSelected.includes(classId)
-        ? prevSelected.filter(id => id !== classId)
-        : [...prevSelected, classId]
-    );
-  };
+  // Lọc các khoa theo tên khoa và khoa được chọn
+  const filteredDepartments = departments.filter(dept => {
+    const matchesName = dept.deptName.toLowerCase().includes(searchName.toLowerCase());
+    const matchesDept = selectedDept ? dept.deptCode === selectedDept : true;
+    return matchesName && matchesDept;
+  });
 
-  const handleSelectAllChange = (e) => {
-    const pageClassIds = currentItems.map(cls => cls.id);
-    if (e.target.checked) {
-      setSelectedClasses((prev) => [...new Set([...prev, ...pageClassIds])]);
-    } else {
-      setSelectedClasses((prev) => prev.filter(id => !pageClassIds.includes(id)));
-    }
-  };
+  // Tính toán tổng số trang
+  const totalPages = Math.ceil(filteredDepartments.length / itemsPerPage);
 
-  const currentItems = classes.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  // Các khoa hiển thị trên trang hiện tại
+  const currentDepartments = filteredDepartments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
+  // Hiển thị phân trang
   const renderPagination = () => (
     <ul className="pagination">
       {[...Array(totalPages)].map((_, i) => (
@@ -48,76 +53,63 @@ const Class = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Quản lý lớp học</h2>
+      <h2 className="mb-4">Quản lý Khoa</h2>
 
+      {/* Tìm kiếm và chọn khoa */}
       <div className="row mb-3">
-        <div className="col-md-3">
-          <input type="text" className="form-control" placeholder="Tìm theo tên lớp" />
+        <div className="col-md-4">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Tìm theo tên khoa"
+            value={searchName}
+            onChange={(e) => setSearchName(e.target.value)}
+          />
         </div>
-        <div className="col-md-3">
-          <input type="text" className="form-control" placeholder="Tìm theo tên giảng viên" />
+        <div className="col-md-4">
+          <select
+            className="form-control"
+            value={selectedDept}
+            onChange={(e) => setSelectedDept(e.target.value)}
+          >
+            <option value="">Tất cả khoa</option>
+            {departments.map(dept => (
+              <option key={dept.id} value={dept.deptCode}>
+                {dept.deptName} {/* Hiển thị tên khoa */}
+              </option>
+            ))}
+          </select>
         </div>
-        <div className="col-md-3">
-          <button className="btn btn-primary">Tìm kiếm</button>
-        </div>
-        <div className="col-md-3 text-end">
+        <div className="col-md-4 text-end">
           <a href="/admin/class/add" className="btn btn-success">
-            <i className="fas fa-plus"></i> Thêm lớp học
+            <i className="fas fa-plus"></i> Thêm khoa
           </a>
         </div>
       </div>
 
-      <div className="d-flex justify-content-between mb-2">
-        <div>
-          <button className="btn btn-danger me-2">
-            <i className="fa fa-trash"></i> Xóa các ô đã chọn
-          </button>
-          <button className="btn btn-warning">
-            <i className="fa fa-check"></i>{' '}
-            {selectedClasses.length === currentItems.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-          </button>
-        </div>
-        <a className="btn btn-info" href="/admin/classes/trash">
-          <i className="fa fa-trash"></i> Lớp học đã xóa
-        </a>
-      </div>
-
+      {/* Hiển thị danh sách các khoa */}
       <table className="table table-bordered text-center">
         <thead>
           <tr>
-            <th>
-              <input
-                type="checkbox"
-                onChange={handleSelectAllChange}
-                checked={currentItems.every(cls => selectedClasses.includes(cls.id))}
-              />
-            </th>
             <th>ID</th>
-            <th>Tên lớp</th>
-            <th>Giáo viên chủ nhiệm</th>
-            <th>Sĩ số</th>
+            <th>Tên Khoa</th>
+            <th>Mã Khoa</th>
+            <th>Mô tả</th>
             <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {currentItems.map(cls => (
-            <tr key={cls.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedClasses.includes(cls.id)}
-                  onChange={() => handleCheckboxChange(cls.id)}
-                />
-              </td>
-              <td>{cls.id}</td>
-              <td>{cls.name}</td>
-              <td>{cls.teacher}</td>
-              <td>{cls.students}</td>
+          {currentDepartments.map(dept => (
+            <tr key={dept.id}>
+              <td>{dept.id}</td>
+              <td>{dept.deptName}</td>
+              <td>{dept.deptCode}</td>
+              <td>{dept.description}</td>
               <td className="d-flex justify-content-center gap-2">
-                <a href={`/admin/class/edit`} className="btn btn-primary">
+                <a href={`/admin/class/edit/${dept.id}`} className="btn btn-primary">
                   <i className="fa fa-pencil-alt"></i>
                 </a>
-                <a href={`/admin/classes/delete/${cls.id}`} className="btn btn-danger">
+                <a href={`/admin/class/delete/${dept.id}`} className="btn btn-danger">
                   <i className="fa fa-trash"></i>
                 </a>
               </td>
@@ -126,9 +118,12 @@ const Class = () => {
         </tbody>
       </table>
 
-      <nav className="d-flex justify-content-end">{renderPagination()}</nav>
+      {/* Phân trang */}
+      <nav className="d-flex justify-content-end">
+        {renderPagination()}
+      </nav>
     </div>
   );
 };
 
-export default Class;
+export default DepartmentList;
