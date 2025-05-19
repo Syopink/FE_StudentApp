@@ -25,6 +25,7 @@ const DepartmentEdit = () => {
     fetchData();
   }, [id]);
 
+
   // Nếu dữ liệu chưa tải xong
   if (!dept) return <p>Đang tải dữ liệu...</p>;
 

@@ -17,7 +17,7 @@ const handleRefreshToken = async () => {
   try {
     const response = await axios.post(REFRESH_TOKEN_URL, { refreshToken: refresh_token });
     const { accessToken, refreshToken } = response.data;
-    localStorage.setItem('token', accessToken);
+localStorage.setItem('accessToken', accessToken);
     localStorage.setItem('refreshToken', refreshToken);
     return accessToken;
   } catch (error) {
@@ -28,32 +28,35 @@ const handleRefreshToken = async () => {
 
 Http.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('accessToken');
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
-
 Http.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       try {
         const newAccessToken = await handleRefreshToken();
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return Http(originalRequest);
+        return Http(originalRequest); // Gửi lại request sau khi refresh
       } catch (refreshError) {
-        localStorage.removeItem('token');
+        // Nếu refresh token sai, redirect về login
+        localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
       }
     }
+
     return Promise.reject(error);
   }
 );
+
 
 export default Http;

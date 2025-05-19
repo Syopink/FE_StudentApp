@@ -7,51 +7,79 @@ import AdminLayout from './layouts/AdminLayout';
 import HeaderAdmin from './shared/components/Layout/adminLayout/Header';
 import FooterAdmin from './shared/components/Layout/adminLayout/Footer';
 import Sidebar from './shared/components/Layout/adminLayout/Sidebar';
-import { AuthProvider } from './ultis/AuthContext';
+import { Provider } from 'react-redux';
+import store, { persistor } from './redux/store';
+import { PersistGate } from 'redux-persist/integration/react';
+import ProtectedRoute from './ultis/ProtectedRole';
+import StudentLayout from './layouts/StudentLayout';
+
 const App = () => {
   return (
-    <AuthProvider>
-    <BrowserRouter>
-      <Routes>
-        {publicRoutes.map((route, index) => {
-          // Kiểm tra nếu route là trang Admin, sử dụng AdminLayout và không hiển thị Header/Footer
-          if (route.layout === 'admin') {
-            return (
-              <>              
-              <Route key={index} path={route.path} element={<AdminLayout />}>
-                {route.children &&
-                  route.children.map((childRoute, childIndex) => (
-                    <Route
-                      key={childIndex}
-                      path={childRoute.path}
-                      element={childRoute.element}
-                    />
-                  ))}
-              </Route>
-              </>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
 
-            );
-          }
-
-          // Hiển thị Header và Footer cho các route không phải admin (Home, Login)
-          return (
-            <Route
-              key={index}
-              path={route.path}
-              element={
-                <>
-                  <Header />
-                  {/* Render component chính ở đây */}
-                  <div>{route.element}</div> 
-                  <Footer />
-                </>
+        <BrowserRouter>
+          <Routes>
+            {publicRoutes.map((route, index) => {
+              if (route.layout === 'admin') {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<ProtectedRoute allowedRoles={['admin']} />}
+                  >
+                    <Route element={<AdminLayout />}>
+                      {route.children?.map((childRoute, childIndex) => (
+                        <Route
+                          key={childIndex}
+                          path={childRoute.path}
+                          element={childRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  </Route>
+                );
               }
-            />
-          );
-        })}
-      </Routes>
-    </BrowserRouter>
-    </AuthProvider>
+
+              if (route.layout === 'student') {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<ProtectedRoute allowedRoles={['student']} />}
+                  >
+                    <Route element={<StudentLayout />}>
+                      {route.children?.map((childRoute, childIndex) => (
+                        <Route
+                          key={childIndex}
+                          path={childRoute.path}
+                          element={childRoute.element}
+                        />
+                      ))}
+                    </Route>
+                  </Route>
+                );
+              }
+
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <>
+                      <Header />
+                      <div>{route.element}</div>
+                      <Footer />
+                    </>
+                  }
+                />
+              );
+            })}
+          </Routes>
+        </BrowserRouter>
+      </PersistGate>
+
+    </Provider>
   );
 };
 

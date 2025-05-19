@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { getDepartments } from '../../services/Api'; // Import API
+import { Link } from 'react-router-dom';
 
 const DepartmentList = () => {
   const [departments, setDepartments] = useState([]); // Lưu danh sách khoa
   const [selectedDept, setSelectedDept] = useState(''); // Khoa được chọn
   const [searchName, setSearchName] = useState(''); // Tìm kiếm theo tên khoa
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const itemsPerPage = 3; // Số khoa trên mỗi trang
+  const itemsPerPage = 10; // Số khoa trên mỗi trang
 
   // Lấy danh sách khoa từ API
   useEffect(() => {
@@ -51,7 +52,7 @@ const DepartmentList = () => {
     </ul>
   );
 
-  return (
+ return (
     <div className="container mt-4">
       <h2 className="mb-4">Quản lý Khoa</h2>
 
@@ -75,15 +76,16 @@ const DepartmentList = () => {
             <option value="">Tất cả khoa</option>
             {departments.map(dept => (
               <option key={dept.id} value={dept.deptCode}>
-                {dept.deptName} {/* Hiển thị tên khoa */}
+                {dept.deptName}
               </option>
             ))}
           </select>
         </div>
         <div className="col-md-4 text-end">
-          <a href="/admin/class/add" className="btn btn-success">
+          {/* Sửa a href thành Link to */}
+          <Link to="/admin/class/add" className="btn btn-success">
             <i className="fas fa-plus"></i> Thêm khoa
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -106,12 +108,13 @@ const DepartmentList = () => {
               <td>{dept.deptCode}</td>
               <td>{dept.description}</td>
               <td className="d-flex justify-content-center gap-2">
-                <a href={`/admin/class/edit/${dept.id}`} className="btn btn-primary">
+                {/* Sửa a href thành Link to */}
+                <Link to={`/admin/class/edit/${dept.id}`} className="btn btn-primary">
                   <i className="fa fa-pencil-alt"></i>
-                </a>
-                <a href={`/admin/class/delete/${dept.id}`} className="btn btn-danger">
+                </Link>
+                <Link to={`/admin/class/delete/${dept.id}`} className="btn btn-danger">
                   <i className="fa fa-trash"></i>
-                </a>
+                </Link>
               </td>
             </tr>
           ))}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const PAGE_SIZE = 5;
 
@@ -83,9 +84,9 @@ const Registration = () => {
           />
         </div>
         <div className="col-md-4 text-end">
-          <a href="/add_registration.html" className="btn btn-success">
+          <Link to="/add_registration.html" className="btn btn-success">
             <i className="fa fa-plus"></i> Thêm đăng ký
-          </a>
+          </Link>
         </div>
       </div>
 
@@ -124,9 +125,9 @@ const Registration = () => {
               <td>{r.subject}</td>
               <td>{r.semester}</td>
               <td>
-                <a href="/edit_registration.html" className="btn btn-primary btn-sm me-2">
+                <Link to="/edit_registration.html" className="btn btn-primary btn-sm me-2">
                   <i className="fa fa-pencil"></i>
-                </a>
+                </Link>
                 <button className="btn btn-danger btn-sm" onClick={() => handleDeleteSelected([r.id])}>
                   <i className="fa fa-trash"></i>
                 </button>

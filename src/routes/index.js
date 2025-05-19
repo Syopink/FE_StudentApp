@@ -7,6 +7,7 @@ import Teacher from "../pages/admin/Teacher";
 import Subject from "../pages/admin/subject";
 import Grades from "../pages/admin/Grades";
 import Schedule from "../pages/admin/Schedule";
+import ScheduleStudent from "../pages/student/Schedule";
 import Registration from "../pages/admin/Registration";
 import Settings from "../pages/admin/Setting";
 import Profile from "../pages/admin/Profile";
@@ -21,100 +22,63 @@ import SubjectEdit from "../pages/admin/SubjectEdit";
 import GradeAdd from "../pages/admin/GradeAdd";
 import GradeEdit from "../pages/admin/GradeEdit";
 
+import GradesStudent from "../pages/student/Grade";
+import Curriculum from "../pages/admin/Curriculum";
+import CurriculumDetailAdd from "../pages/admin/CurriculumAdd";
+import CurriculumList from "../pages/student/Curriculum";
+
 const publicRoutes = [
     {
         path: '/',
-        element: <Home />,  // Trang Home, có Header và Footer
+        element: <Home />,
     },
     {
         path: '/login',
-        element: <Login />,  // Trang Login, có Header và Footer
+        element: <Login />,
     },
     {
         path: '/admin',
-        layout: 'admin',  // Đánh dấu là layout admin, không có Header và Footer
+        layout: 'admin',
+        role: 'admin',  // chỉ admin được vào /admin và các route con
         children: [
-            {
-                path: '', // Tương đương path: '/admin'
-                element: <Dashboard />,  // Trang Dashboard trong admin
-            },{
-                path: 'students',
-                element: <Student/>
-            }
-            ,{
-                path: 'students/add',
-                element: <StudentAdd/>
-            }
-            ,{
-                path: 'students/edit/:student_code',
-                element: <StudentEdit/>
-            }
-            ,{
-                path: 'class',
-                element: <Class/>
-            }
-            ,{
-                path: 'class/add',
-                element: <ClassAdd/>
-            }
-            ,{
-                path: 'class/edit/:id',
-                element: <ClassEdit/>
-            }
-            ,{
-                path: 'teacher',
-                element: <Teacher/>
-            }
-            ,{
-                path: 'teacher/add',
-                element: <TeacherAdd/>
-            }
-            ,{
-                path: 'teacher/edit/:teacherCode',
-                element: <TeacherEdit/>
-            }
-            ,{
-                path: 'subject',
-                element: <Subject/>
-            }
-            ,{
-                path: 'subject/add',
-                element: <SubjectAdd/>
-            }
-            ,{
-                path: 'subject/edit',
-                element: <SubjectEdit/>
-            }
-            ,{
-                path: 'grades',
-                element: <Grades/>
-            }
-            ,{
-                path: 'grades/add',
-                element: <GradeAdd/>
-            }
-            ,{
-                path: 'grades/edit',
-                element: <GradeEdit/>
-            }
-            ,{
-                path: 'schedule',
-                element: <Schedule/>
-            }
-            ,{
-                path: 'registration',
-                element: <Registration/>
-            }
-            ,{
-                path: 'settings',
-                element: <Settings/>
-            }
-            ,{
-                path: 'profile',
-                element: <Profile/>
-            }
-        ]
-    }
+            { path: '', element: <Dashboard /> },
+            { path: 'students', element: <Student /> },
+            { path: 'students/add', element: <StudentAdd /> },
+            { path: 'students/edit/:student_id', element: <StudentEdit /> },
+            { path: 'class', element: <Class /> },
+            { path: 'class/add', element: <ClassAdd /> },
+            { path: 'class/edit/:id', element: <ClassEdit /> },
+            { path: 'teacher', element: <Teacher /> },
+            { path: 'teacher/add', element: <TeacherAdd /> },
+            { path: 'teacher/edit/:teacherCode', element: <TeacherEdit /> },
+            { path: 'subject', element: <Subject /> },
+            { path: 'subject/add', element: <SubjectAdd /> },
+            { path: 'subject/edit/:id', element: <SubjectEdit /> },
+            { path: 'grades', element: <Grades /> },
+            { path: 'grades/add', element: <GradeAdd /> },
+            { path: 'grades/edit/:id', element: <GradeEdit /> },
+            { path: 'schedule', element: <Schedule /> },
+            { path: 'registration', element: <Registration /> },
+            { path: 'settings', element: <Settings /> },
+            { path: 'profile', element: <Profile /> },
+            { path: 'curriculum', element: <Curriculum /> },
+            { path: 'curriculums/add', element: <CurriculumDetailAdd /> },
+        ],
+    },
+    {
+        path: '/student',
+        layout: 'student',
+        role: 'student',  // chỉ student được vào /student và các route con
+        children: [
+            { path: '', element: <Dashboard /> },
+            //   { path: 'profile', element: <Profile /> },
+            { path: 'grades', element: <GradesStudent /> },
+            { path: 'curriculum', element: <CurriculumList /> },
+            { path: 'schedule', element: <ScheduleStudent /> },
+            // thêm các route riêng cho student nếu có
+        ],
+    },
 ];
+
 
 export default publicRoutes;

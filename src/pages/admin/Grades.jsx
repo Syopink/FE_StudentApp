@@ -1,28 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getGrades, delGrade } from '../../services/Api'; // Thêm hàm deleteGrade
+import { Link } from 'react-router-dom';
 
 const PAGE_SIZE = 5;
 
 const Grades = () => {
-  const [grades, setGrades] = useState([
-    { id: 1, student: 'Nguyễn Văn A', subject: 'Toán cao cấp', score: 9.5 },
-    { id: 2, student: 'Trần Thị B', subject: 'Vật lý', score: 8.0 },
-    { id: 3, student: 'Lê Văn C', subject: 'Hóa học', score: 7.0 },
-    { id: 4, student: 'Phạm Thị D', subject: 'Lập trình', score: 9.0 },
-    { id: 5, student: 'Đỗ Văn E', subject: 'Xác suất', score: 6.5 },
-    { id: 6, student: 'Ngô Thị F', subject: 'Triết học', score: 8.5 },
-  ]);
-
-  const [trash, setTrash] = useState([]);
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [searchStudent, setSearchStudent] = useState('');
-  const [searchSubject, setSearchSubject] = useState('');
+  const [grades, setGrades] = useState([]);
+  const [searchStudentId, setSearchStudentId] = useState('');
+  const [searchClassId, setSearchClassId] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredGrades = grades.filter(
-    (g) =>
-      g.student.toLowerCase().includes(searchStudent.toLowerCase()) &&
-      g.subject.toLowerCase().includes(searchSubject.toLowerCase())
-  );
+  useEffect(() => {
+    fetchGrades();
+  }, []);
+
+  const fetchGrades = async () => {
+    try {
+      const response = await getGrades();
+      setGrades(response.data);
+    } catch (error) {
+      console.error('Lỗi khi load điểm:', error);
+    }
+  };
+
+  // Hàm xóa điểm theo id
+  const handleDelete = async (id) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa điểm này?')) return;
+
+    try {
+      await delGrade(id);
+      alert('Xóa điểm thành công!');
+      // Cập nhật lại danh sách điểm sau khi xóa
+      setGrades(grades.filter((g) => g.id !== id));
+    } catch (error) {
+      console.error('Lỗi khi xóa điểm:', error);
+      alert('Xóa điểm thất bại!');
+    }
+  };
+
+  const filteredGrades = grades.filter((g) => {
+    const studentId = g.studentId?.toString() ?? '';
+    const classId = g.classId?.toString() ?? '';
+    return studentId.includes(searchStudentId) && classId.includes(searchClassId);
+  });
 
   const totalPages = Math.ceil(filteredGrades.length / PAGE_SIZE);
   const displayedGrades = filteredGrades.slice(
@@ -30,36 +50,8 @@ const Grades = () => {
     currentPage * PAGE_SIZE
   );
 
-  const handleSelect = (id) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((sid) => sid !== id) : [...prev, id]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedIds.length === displayedGrades.length) {
-      setSelectedIds([]);
-    } else {
-      setSelectedIds(displayedGrades.map((g) => g.id));
-    }
-  };
-
-  const handleDeleteSelected = () => {
-    if (selectedIds.length === 0) {
-      alert('Vui lòng chọn ít nhất một dòng để xóa.');
-      return;
-    }
-    if (window.confirm(`Bạn có chắc muốn xóa ${selectedIds.length} dòng?`)) {
-      const toTrash = grades.filter((g) => selectedIds.includes(g.id));
-      setTrash([...trash, ...toTrash]);
-      setGrades(grades.filter((g) => !selectedIds.includes(g.id)));
-      setSelectedIds([]);
-    }
-  };
-
   const goToPage = (pageNum) => {
     setCurrentPage(pageNum);
-    setSelectedIds([]);
   };
 
   return (
@@ -72,84 +64,66 @@ const Grades = () => {
           <input
             type="text"
             className="form-control"
-            placeholder="Tìm theo tên sinh viên"
-            value={searchStudent}
-            onChange={(e) => setSearchStudent(e.target.value)}
+            placeholder="Tìm theo mã sinh viên"
+            value={searchStudentId}
+            onChange={(e) => setSearchStudentId(e.target.value)}
           />
         </div>
         <div className="col-md-4">
           <input
             type="text"
             className="form-control"
-            placeholder="Tìm theo tên môn học"
-            value={searchSubject}
-            onChange={(e) => setSearchSubject(e.target.value)}
+            placeholder="Tìm theo mã lớp"
+            value={searchClassId}
+            onChange={(e) => setSearchClassId(e.target.value)}
           />
         </div>
         <div className="col-md-4 text-end">
-          <a href="/admin/grades/add" className="btn btn-success">
-            <i className="fa fa-plus"></i> Thêm điểm
-          </a>
+          <Link to="/admin/grades/add" className="btn btn-success">
+            <i className="fas fa-plus"></i> Thêm điểm
+          </Link>
         </div>
-      </div>
-
-      {/* Hành động */}
-      <div className="d-flex justify-content-between mb-2">
-        <div>
-          <button className="btn btn-danger me-2" onClick={handleDeleteSelected}>
-            <i className="fa fa-trash"></i> Xóa các ô đã chọn
-          </button>
-          <button className="btn btn-warning" onClick={handleSelectAll}>
-            <i className="fa fa-check"></i>{' '}
-            {selectedIds.length === displayedGrades.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-          </button>
-        </div>
-        <a className="btn btn-info" onClick={() => alert(JSON.stringify(trash, null, 2))}>
-          <i className="fa fa-trash"></i> Thùng rác ({trash.length})
-        </a>
       </div>
 
       {/* Bảng điểm */}
       <table className="table table-bordered text-center">
         <thead>
           <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={
-                  selectedIds.length === displayedGrades.length && displayedGrades.length > 0
-                }
-                onChange={handleSelectAll}
-              />
-            </th>
-            <th>ID</th>
-            <th>Sinh viên</th>
+            <th>STT</th>
+            <th>Mã sinh viên</th>
+            <th>Mã lớp</th>
             <th>Môn học</th>
-            <th>Điểm</th>
+            <th>Học kỳ</th>
+            <th>Điểm CC</th>
+            <th>Điểm thi</th>
+            <th>Điểm TK</th>
+            <th>Ghi chú</th>
             <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {displayedGrades.map((grade) => (
+          {displayedGrades.map((grade, index) => (
             <tr key={grade.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(grade.id)}
-                  onChange={() => handleSelect(grade.id)}
-                />
-              </td>
-              <td>{grade.id}</td>
-              <td>{grade.student}</td>
-              <td>{grade.subject}</td>
-              <td>{grade.score}</td>
-              <td>
-                <a href="/admin/grades/edit" className="btn btn-primary btn-sm me-2">
-                  <i className="fa fa-pencil"></i>
-                </a>
+              <td>{(currentPage - 1) * PAGE_SIZE + index + 1}</td>
+              <td>{grade.studentId}</td>
+              <td>{grade.classId}</td>
+              <td>{grade.subjectName}</td>
+              <td>{grade.semesterName}</td>
+              <td>{grade.attendanceScore}</td>
+              <td>{grade.examScore}</td>
+              <td>{grade.finalScore}</td>
+              <td>{grade.note}</td>
+              <td className="d-flex justify-content-center gap-2">
+                <Link
+                  to={`/admin/grades/edit/${grade.id}`}
+                  className="btn btn-primary"
+                >
+                  <i className="fa fa-pencil-alt"></i>
+                </Link>
+                {/* Nút xóa ngay */}
                 <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => handleDeleteSelected([grade.id])}
+                  className="btn btn-danger"
+                  onClick={() => handleDelete(grade.id)}
                 >
                   <i className="fa fa-trash"></i>
                 </button>
@@ -158,24 +132,71 @@ const Grades = () => {
           ))}
           {displayedGrades.length === 0 && (
             <tr>
-              <td colSpan="6">Không tìm thấy kết quả.</td>
+              <td colSpan="10">Không tìm thấy kết quả.</td>
             </tr>
           )}
         </tbody>
       </table>
 
       {/* Phân trang */}
-      <nav className="d-flex justify-content-end">
-        <ul className="pagination">
-          {[...Array(totalPages)].map((_, i) => (
-            <li key={i} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
-              <button className="page-link" onClick={() => goToPage(i + 1)}>
-                {i + 1}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {/* Phân trang */}
+<nav className="d-flex justify-content-end">
+  <ul className="pagination">
+    {/* Nút Trước */}
+    <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+      <button className="page-link" onClick={() => setCurrentPage(currentPage - 1)} disabled={currentPage === 1}>
+        Trước
+      </button>
+    </li>
+
+    {/* Trang 1 luôn hiện */}
+    <li className={`page-item ${currentPage === 1 ? 'active' : ''}`}>
+      <button className="page-link" onClick={() => setCurrentPage(1)}>
+        1
+      </button>
+    </li>
+
+    {/* Dấu ... nếu currentPage > 3 */}
+    {currentPage > 3 && totalPages > 3 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Trang hiện tại nếu không phải 1 hoặc trang cuối */}
+    {currentPage !== 1 && currentPage !== totalPages && currentPage > 1 && currentPage < totalPages && (
+      <li className="page-item active">
+        <button className="page-link" onClick={() => setCurrentPage(currentPage)}>
+          {currentPage}
+        </button>
+      </li>
+    )}
+
+    {/* Dấu ... nếu currentPage < totalPages - 2 */}
+    {currentPage < totalPages - 2 && totalPages > 3 && (
+      <li className="page-item disabled">
+        <span className="page-link">...</span>
+      </li>
+    )}
+
+    {/* Trang cuối nếu > 1 */}
+    {totalPages > 1 && (
+      <li className={`page-item ${currentPage === totalPages ? 'active' : ''}`}>
+        <button className="page-link" onClick={() => setCurrentPage(totalPages)}>
+          {totalPages}
+        </button>
+      </li>
+    )}
+
+    {/* Nút Sau */}
+    <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+      <button className="page-link" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+        Sau
+      </button>
+    </li>
+  </ul>
+</nav>
+
     </div>
   );
 };

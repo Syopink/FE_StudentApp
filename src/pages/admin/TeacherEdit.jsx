@@ -88,16 +88,20 @@ const TeacherEdit = () => {
             required
           />
         </div>
-        <div className="mb-3">
-          <label>Giới tính</label>
-          <input
-            type="text"
-            className="form-control"
-            value={teacherGender}
-            onChange={(e) => setTeacherGender(e.target.value)}
-            required
-          />
-        </div>
+       <div className="mb-3">
+  <label>Giới tính</label>
+  <select
+    className="form-control"
+    value={teacherGender}
+    onChange={(e) => setTeacherGender(e.target.value)}
+    required
+  >
+    <option value="">-- Chọn giới tính --</option>
+    <option value="Male">Nam</option>
+    <option value="Female">Nữ</option>
+    <option value="Other">Khác</option>
+  </select>
+</div>
         <div className="mb-3">
           <label>Ngày sinh</label>
           <input

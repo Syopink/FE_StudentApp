@@ -1,14 +1,25 @@
-import React, { useContext } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../ultis/AuthContext";
-
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/reducers/auth";
+import { Link } from "react-router-dom";
 const Navbar = () => {
   const navigate = useNavigate();
-  const { user, role, logout } = useContext(AuthContext);
+  const dispatch = useDispatch();
 
+  // Lấy thông tin user từ Redux store
+  const user = useSelector((state) => state.auth.currentUser?.username);
   const handleLogout = () => {
-    logout(); // Đăng xuất và xóa dữ liệu user khỏi context và localStorage
-    navigate("/login");
+    // Xóa localStorage nếu có
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+
+    // Xóa trong Redux
+    dispatch(logout());
+
+    // Điều hướng về trang đăng nhập
+    navigate("/");
   };
 
   return (
@@ -24,7 +35,7 @@ const Navbar = () => {
           data-bs-toggle="dropdown"
           aria-expanded="false"
         >
-          <i className="bi bi-person"></i> {user?.username} ({role})
+          <i className="bi bi-person"></i> {user}
         </button>
         <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
           <li><a className="dropdown-item" href="/admin/profile">Hồ sơ</a></li>

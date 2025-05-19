@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import WidgetPanel from '../../components/WidgetPanel';
-import { getDepartments, getStudents, getTeachers } from '../../services/Api'; // Giả sử bạn đã tạo các API
+import { getDepartments, getStudents, getTeachers } from '../../services/Api';
 
 const Dashboard = () => {
+  const role = useSelector(state => state.auth.currentUser?.role?.roleName);
+
   const [stats, setStats] = useState({
     students: 0,
     teachers: 0,
@@ -19,11 +22,11 @@ const Dashboard = () => {
         const departmentsRes = await getDepartments();
 
         setStats({
-          students: studentsRes.data.length, // Giả sử API trả về danh sách
+          students: studentsRes.data.length,
           teachers: teachersRes.data.length,
           departments: departmentsRes.data.length,
-          subjects: 12, // Bạn có thể gọi thêm API để lấy số môn học
-          schedules: 8,  // Bạn có thể gọi thêm API để lấy số lịch học
+          subjects: 12,
+          schedules: 8,
         });
       } catch (error) {
         console.error("Error fetching stats:", error);
@@ -33,6 +36,22 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  if (role === "STUDENT") {
+    // Nếu là student, hiển thị widget khác
+    return (
+      <div>
+        <h2 className="mb-4">Trang chủ sinh viên</h2>
+        <div className="row g-4">
+          <WidgetPanel color="primary" icon="bi bi-book" value={stats.subjects} label="Môn học đang đăng ký" />
+          <WidgetPanel color="warning" icon="bi bi-calendar" value={stats.schedules} label="Lịch học" />
+          <WidgetPanel color="info" icon="bi bi-journal-text" value="Điểm hiện tại" label="Điểm" />
+          {/* Bạn có thể thêm widget liên quan đến sinh viên, ví dụ lịch thi, thông báo,... */}
+        </div>
+      </div>
+    );
+  }
+
+  // Còn nếu là admin, giáo viên hoặc role khác thì hiển thị dashboard đầy đủ
   return (
     <div>
       <h2 className="mb-4">Trang chủ quản trị trường học</h2>

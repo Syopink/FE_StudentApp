@@ -1,14 +1,55 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { addGrade } from '../../services/Api';
 
 const GradeAdd = () => {
-  const [student, setStudent] = useState('');
-  const [subject, setSubject] = useState('');
-  const [score, setScore] = useState('');
+  const [studentId, setStudentId] = useState('');
+  const [classId, setClassId] = useState('');
+  const [attendanceScore, setAttendanceScore] = useState('');
+  const [examScore, setExamScore] = useState('');
+  const [finalScore, setFinalScore] = useState('');
+  const [note, setNote] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert(`Đã thêm điểm: ${student} - ${subject} - ${score}`);
-    // TODO: Gửi dữ liệu lên server
+
+    // Validate điểm (ví dụ 0-10)
+    const att = parseFloat(attendanceScore);
+    const exam = parseFloat(examScore);
+    if (
+      isNaN(att) || att < 0 || att > 10 ||
+      isNaN(exam) || exam < 0 || exam > 10
+    ) {
+      alert('Điểm phải là số từ 0 đến 10');
+      return;
+    }
+  const final = +(0.3 * att + 0.7 * exam).toFixed(2);
+
+    try {
+      
+      const body = {
+        student_id: parseInt(studentId),
+        class_id: parseInt(classId),
+        attendance_score: att,
+        exam_score: exam,
+        final_score: final,
+        note,
+      };
+      console.log("body: ", body)
+      await addGrade(body);
+;
+    alert(`Thêm điểm thành công! Điểm tổng kết: ${final}`);
+      // Reset form
+      setStudentId('');
+      setClassId('');
+      setAttendanceScore('');
+      setExamScore('');
+      setFinalScore('');
+      setNote('');
+    } catch (error) {
+      console.error('Lỗi khi thêm điểm:', error);
+      alert('Thêm điểm thất bại!');
+    }
   };
 
   return (
@@ -16,34 +57,59 @@ const GradeAdd = () => {
       <h2>Thêm điểm</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label>Sinh viên</label>
+          <label>Mã sinh viên</label>
           <input
-            type="text"
+            type="number"
             className="form-control"
-            value={student}
-            onChange={(e) => setStudent(e.target.value)}
+            value={studentId}
+            onChange={e => setStudentId(e.target.value)}
             required
           />
         </div>
         <div className="mb-3">
-          <label>Môn học</label>
+          <label>Mã lớp</label>
           <input
-            type="text"
+            type="number"
             className="form-control"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
+            value={classId}
+            onChange={e => setClassId(e.target.value)}
             required
           />
         </div>
         <div className="mb-3">
-          <label>Điểm</label>
+          <label>Điểm chuyên cần</label>
           <input
             type="number"
             step="0.1"
+            min="0"
+            max="10"
             className="form-control"
-            value={score}
-            onChange={(e) => setScore(e.target.value)}
+            value={attendanceScore}
+            onChange={e => setAttendanceScore(e.target.value)}
             required
+          />
+        </div>
+        <div className="mb-3">
+          <label>Điểm thi</label>
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            max="10"
+            className="form-control"
+            value={examScore}
+            onChange={e => setExamScore(e.target.value)}
+            required
+          />
+        </div>
+     
+        <div className="mb-3">
+          <label>Ghi chú</label>
+          <input
+            type="text"
+            className="form-control"
+            value={note}
+            onChange={e => setNote(e.target.value)}
           />
         </div>
         <button type="submit" className="btn btn-success">Thêm mới</button>

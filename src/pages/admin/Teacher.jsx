@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getTeachers } from '../../services/Api'; // Giả sử có API getTeachers
+import { getTeachers, delTeacher } from '../../services/Api'
+import { Link } from 'react-router-dom';
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
@@ -9,20 +10,21 @@ const Teacher = () => {
   const [searchName, setSearchName] = useState('');
   const [searchEmail, setSearchEmail] = useState('');
 
-  const itemsPerPage = 2;
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const response = await getTeachers();
-        setTeachers(response.data);
-        setFilteredTeachers(response.data);
-      } catch (error) {
-        console.error('Lỗi lấy danh sách giảng viên:', error);
-      }
-    };
     fetchTeachers();
   }, []);
+
+  const fetchTeachers = async () => {
+    try {
+      const response = await getTeachers();
+      setTeachers(response.data);
+      setFilteredTeachers(response.data);
+    } catch (error) {
+      console.error('Lỗi lấy danh sách giảng viên:', error);
+    }
+  };
 
   useEffect(() => {
     const filtered = teachers.filter((t) =>
@@ -30,7 +32,7 @@ const Teacher = () => {
       (t.teacherEmail || '').toLowerCase().includes(searchEmail.toLowerCase())
     );
     setFilteredTeachers(filtered);
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, [searchName, searchEmail, teachers]);
 
   const handleCheckboxChange = (teacherId) => {
@@ -46,6 +48,43 @@ const Teacher = () => {
       setSelectedTeachers([]);
     } else {
       setSelectedTeachers(currentTeachers.map((t) => t.id));
+    }
+  };
+
+  const handleDeleteTeacher = async (id) => {
+    if (window.confirm('Bạn có chắc muốn xóa giảng viên này không?')) {
+      try {
+        await delTeacher(id);
+        alert('Xóa giảng viên thành công!');
+        // Sau khi xóa, load lại danh sách
+        fetchTeachers();
+        // Nếu teacher này có trong selected thì bỏ ra
+        setSelectedTeachers(prev => prev.filter(tid => tid !== id));
+      } catch (error) {
+        console.error('Lỗi khi xóa giảng viên:', error);
+        alert('Xóa giảng viên thất bại.');
+      }
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedTeachers.length === 0) {
+      alert('Chưa chọn giảng viên nào để xóa.');
+      return;
+    }
+    if (window.confirm(`Bạn có chắc muốn xóa ${selectedTeachers.length} giảng viên đã chọn?`)) {
+      try {
+        // Xóa lần lượt hoặc gọi API xóa nhiều (nếu có)
+        for (const id of selectedTeachers) {
+          await delTeacher(id);
+        }
+        alert('Xóa giảng viên đã chọn thành công!');
+        fetchTeachers();
+        setSelectedTeachers([]);
+      } catch (error) {
+        console.error('Lỗi khi xóa giảng viên:', error);
+        alert('Xóa giảng viên thất bại.');
+      }
     }
   };
 
@@ -81,19 +120,18 @@ const Teacher = () => {
           />
         </div>
         <div className="col-md-4 text-end">
-          <a href="/admin/teachers/add" className="btn btn-success">
+          <Link to="/admin/teacher/add" className="btn btn-success">
             <i className="fas fa-plus"></i> Thêm giảng viên
-          </a>
+          </Link>
         </div>
       </div>
 
       {/* Nút hành động */}
       <div className="d-flex justify-content-between mb-2">
         <div>
-          <button className="btn btn-danger me-2">
+          <button className="btn btn-danger me-2" onClick={handleDeleteSelected}>
             <i className="fa fa-trash"></i> Xóa các ô đã chọn
           </button>
-          {/* Chỉ hiển thị "Bỏ chọn tất cả" nếu có giảng viên để chọn */}
           {!isTeachersEmpty && (
             <button className="btn btn-warning" onClick={handleSelectAllChange}>
               <i className="fa fa-check"></i>{' '}
@@ -101,9 +139,9 @@ const Teacher = () => {
             </button>
           )}
         </div>
-        <a className="btn btn-info" href="/admin/teachers/trash">
+        <Link className="btn btn-info" to="/admin/teachers/trash">
           <i className="fa fa-trash"></i> Giảng viên đã xóa
-        </a>
+        </Link>
       </div>
 
       {/* Bảng giảng viên */}
@@ -143,12 +181,15 @@ const Teacher = () => {
                   <td>{teacher.teacherEmail}</td>
                   <td>{teacher.teacherAddress}</td>
                   <td className="d-flex justify-content-center gap-2">
-                    <a href={`/admin/teacher/edit/${teacher.id}`} className="btn btn-primary">
+                    <Link to={`/admin/teacher/edit/${teacher.id}`} className="btn btn-primary">
                       <i className="fa fa-pencil-alt"></i>
-                    </a>
-                    <a href={`/admin/teachers/delete/${teacher.id}`} className="btn btn-danger">
+                    </Link>
+                    <button
+                      className="btn btn-danger"
+                      onClick={() => handleDeleteTeacher(teacher.id)}
+                    >
                       <i className="fa fa-trash"></i>
-                    </a>
+                    </button>
                   </td>
                 </tr>
               ))}

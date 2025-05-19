@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
-import { AuthContext } from "../../ultis/AuthContext"; // Đảm bảo đường dẫn chính xác
+import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const Profile = () => {
-  const { user } = useContext(AuthContext); // Lấy dữ liệu người dùng từ context
+  // Lấy user object từ redux store
+  const user = useSelector((state) => state.auth.currentUser);
+  console.log("user", user)
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -13,26 +15,25 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      // Cập nhật giá trị formData với thông tin người dùng từ context
       setFormData({
         username: user.username || "",
         email: user.email || "",
-        phone: user.phone || "",
+        phone: user.phone || "",  // nếu user.phone không tồn tại thì bỏ dòng này
         password: "",
         confirmPassword: ""
       });
     }
-  }, [user]); // Chạy lại khi user thay đổi
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Xử lý lưu hồ sơ ở đây, ví dụ gọi API hoặc validate
     console.log("Submitting: ", formData);
+    // Gọi API cập nhật hồ sơ ở đây nếu cần
   };
 
   return (
@@ -47,7 +48,7 @@ const Profile = () => {
         <div className="col-md-6 offset-md-2">
           <form onSubmit={handleSubmit}>
             <div className="form-group mb-3">
-              <label htmlFor="fullName">Họ và Tên</label>
+              <label htmlFor="username">Họ và Tên</label>
               <input
                 type="text"
                 className="form-control"
@@ -81,7 +82,6 @@ const Profile = () => {
                 onChange={handleChange}
               />
             </div>
-
 
             <button type="submit" className="btn btn-primary">Lưu thay đổi</button>
           </form>

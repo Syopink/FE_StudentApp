@@ -11,13 +11,13 @@ const Sidebar = () =>{
     <ul class="nav menu">
         <li><Link to="admin.html"><svg class="glyph stroked dashboard-dial"></svg> Dashboard</Link></li>
         <li><Link to="student.html"><svg class="glyph stroked male-user"></svg> Quản lý sinh viên</Link></li>
-        <li><a href="class.html"><svg class="glyph stroked open-folder"></svg> Quản lý lớp học</a></li>
-        <li><a href="teacher.html"><svg class="glyph stroked bag"></svg> Quản lý giáo viên</a></li>
-        <li><a href="subject.html"><svg class="glyph stroked notebook"></svg> Quản lý môn học</a></li>
-        <li><a href="grades.html"><svg class="glyph stroked clipboard-with-paper"></svg> Quản lý điểm</a></li>
-        <li><a href="schedule.html"><svg class="glyph stroked calendar-blank"></svg> Lịch học</a></li>
-        <li><a href="registration.html"><svg class="glyph stroked notepad"></svg> Đăng ký học phần</a></li>
-        <li><a href="settings.html"><svg class="glyph stroked gear"></svg> Cấu hình</a></li>
+        <li><Link href="class.html"><svg class="glyph stroked open-folder"></svg> Quản lý lớp học</Link></li>
+        <li><Link href="teacher.html"><svg class="glyph stroked bag"></svg> Quản lý giáo viên</Link></li>
+        <li><Link href="subject.html"><svg class="glyph stroked notebook"></svg> Quản lý môn học</Link></li>
+        <li><Link href="grades.html"><svg class="glyph stroked clipboard-with-paper"></svg> Quản lý điểm</Link></li>
+        <li><Link href="schedule.html"><svg class="glyph stroked calendar-blank"></svg> Lịch học</Link></li>
+        <li><Link href="registration.html"><svg class="glyph stroked notepad"></svg> Đăng ký học phần</Link></li>
+        <li><Link href="settings.html"><svg class="glyph stroked gear"></svg> Cấu hình</Link></li>
     </ul>
 </div>
     )

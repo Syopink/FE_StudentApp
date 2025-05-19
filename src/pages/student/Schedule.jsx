@@ -54,78 +54,35 @@ const Schedule = () => {
       <h2 className="mb-4">Quản lý lịch học</h2>
 
       <div className="row mb-3">
-        <div className="col-md-3">
+        <div className="col-md-4">
           <input className="form-control" placeholder="Tìm theo môn học" />
         </div>
-        <div className="col-md-3">
+        <div className="col-md-4">
           <input className="form-control" placeholder="Tìm theo lớp" />
         </div>
-        <div className="col-md-3">
+        <div className="col-md-4">
           <button className="btn btn-primary">Tìm kiếm</button>
         </div>
-        <div className="col-md-3 text-end">
-          <Link to="/schedule-add.html" className="btn btn-success">
-            <i className="fa fa-plus"></i> Thêm lịch học
-          </Link>
-        </div>
-      </div>
-
-      <div className="d-flex justify-content-between mb-2">
-        <div>
-          <button className="btn btn-danger me-2" onClick={handleDeleteSelected}>
-            <i className="fa fa-trash"></i> Xóa các ô đã chọn
-          </button>
-          <button className="btn btn-warning" onClick={handleSelectAll}>
-            <i className="fa fa-check"></i>{' '}
-            {selectedIds.length === displayedSchedules.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
-          </button>
-        </div>
-        <Link className="btn btn-info" onClick={() => alert(JSON.stringify(trash, null, 2))}>
-          <i className="fa fa-trash"></i> Lịch học đã xóa ({trash.length})
-        </Link>
       </div>
 
       <table className="table table-bordered text-center">
         <thead>
           <tr>
-            <th>
-              <input
-                type="checkbox"
-                onChange={handleSelectAll}
-                checked={displayedSchedules.length > 0 && displayedSchedules.every(s => selectedIds.includes(s.id))}
-              />
-            </th>
             <th>ID</th>
             <th>Môn học</th>
             <th>Lớp</th>
             <th>Thời gian</th>
             <th>Phòng</th>
-            <th>Hành động</th>
           </tr>
         </thead>
         <tbody>
           {displayedSchedules.map((schedule) => (
             <tr key={schedule.id}>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={selectedIds.includes(schedule.id)}
-                  onChange={() => handleSelect(schedule.id)}
-                />
-              </td>
               <td>{schedule.id}</td>
               <td>{schedule.subject}</td>
               <td>{schedule.class}</td>
               <td>{schedule.time}</td>
               <td>{schedule.location}</td>
-              <td className="d-flex justify-content-center gap-2">
-                <Link to="/schedule-edit.html" className="btn btn-primary">
-                  <i className="fa fa-pencil-alt"></i>
-                </Link>
-                <button className="btn btn-danger" onClick={() => handleDeleteSelected([schedule.id])}>
-                  <i className="fa fa-trash"></i>
-                </button>
-              </td>
             </tr>
           ))}
           {displayedSchedules.length === 0 && (

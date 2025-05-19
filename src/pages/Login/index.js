@@ -1,11 +1,15 @@
 import React, { useState } from "react";
-import { login } from "../../services/Api";
+import { login } from "../../services/Api"; // hàm gọi API backend
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess, loginFail } from "../../redux/reducers/auth";
 
 const Login = () => {
   const [inputsCustomer, setInputsCustomer] = useState({});
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const changeInputsCustomer = (e) => {
     const { name, value } = e.target;
     setInputsCustomer({ ...inputsCustomer, [name]: value });
@@ -14,17 +18,36 @@ const Login = () => {
   const clickLogin = async (e) => {
     e.preventDefault();
     try {
+      console.log('name, value', inputsCustomer)
       const response = await login(inputsCustomer);
-      console.log("Đăng nhập thành công:", response.data);      
-      // Ví dụ: lưu token vào localStorage
-      localStorage.setItem("token", response.data.accessToken);
-      localStorage.setItem("refreshToken", response.data.refreshToken);
-      localStorage.setItem("user", JSON.stringify(response.data.user));
+      const { accessToken, refreshToken, user } = response.data;
 
-      // Redirect (nếu cần)
-      navigate('/admin')
+      // Đưa vào redux store
+      dispatch(
+        loginSuccess({
+          accessToken,
+          refreshToken,
+          user,
+        })
+      );
+
+      // Optional: lưu vào localStorage nếu muốn giữ đăng nhập sau reload
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+      localStorage.setItem("user", JSON.stringify(user));
+      console.log("user", user.role?.roleName)
+      // Chuyển hướng
+if (user.role?.roleName === 'ADMIN' || user.role?.roleName === 'TEACHER' ) {
+  navigate('/admin');
+} else if (user.role?.roleName === 'STUDENT') {
+  navigate('/student');
+} else {
+  setError("Tài khoản không có quyền truy cập.");
+}
+
     } catch (err) {
       setError("Đăng nhập thất bại. Kiểm tra lại tài khoản/mật khẩu.");
+      dispatch(loginFail());
       console.error(err);
     }
   };
@@ -53,7 +76,7 @@ const Login = () => {
             />
           </div>
           <div className="remember-container">
-            <input type="checkbox" id="remember" name="remember" style={{marginBottom: "0px"}} />
+            <input type="checkbox" id="remember" name="remember" />
             <label htmlFor="remember"> Nhớ tài khoản</label>
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}
